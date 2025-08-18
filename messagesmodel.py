@@ -56,3 +56,56 @@ print("First 10 actual labels (y_test_text):")
 print(ytest_text.head(10).tolist())
 print("\nFirst 10 predicted labels (y_pred_text):")
 print(y_pred_text[:10].tolist())
+
+
+# ADDING A NEW DATASET TO TEST AGAINST
+
+# Load the new dataset
+try:
+    emails_df = pd.read_csv('emails.csv')
+except FileNotFoundError:
+    print("Emails.csv not found")
+    exit()
+except Exception as e:
+    print("Error while loading emails.csv")
+    exit()
+
+# ID text and spam cols in emails_df
+xemail = emails_df['text']
+yemail = emails_df['spam']
+
+# Preprocess and vectorize new data
+print("\n Transforming text data using already fitted TD-IDF Vector")
+xemail_vec = tfidf_vec.transform(xemail)
+print("New email data vectorization complete!")
+
+# Make predictions
+print("\nMaking predictions on the 'emails.csv' dataset using the trained model...")
+yemail_pred = model_text.predict(xemail_vec)
+print("Predictions complete!")
+print("\nFirst 10 actual labels from 'emails.csv' (y_email):")
+print(yemail.head(10).tolist()) 
+print("\nFirst 10 predicted labels for 'emails.csv' (y_email_pred):")
+print(yemail_pred[:10].tolist()) 
+
+# Evaluate Performance
+print("\n--- Model Evaluation on 'emails.csv' ---")
+
+accuracy_email = accuracy_score(yemail, yemail_pred)
+print(f"Accuracy ('emails.csv'): {accuracy_email:.4f}")
+
+precision_email = precision_score(yemail, yemail_pred)
+print(f"Precision ('emails.csv'): {precision_email:.4f}")
+
+recall_email = recall_score(yemail, yemail_pred)
+print(f"Recall ('emails.csv'): {recall_email:.4f}")
+
+f1_email = f1_score(yemail, yemail_pred)
+print(f"F1-Score ('emails.csv'): {f1_email:.4f}")
+
+print("\nConfusion Matrix ('emails.csv'):")
+print(confusion_matrix(yemail, yemail_pred))
+
+
+print("\nClassification Report ('emails.csv'):")
+print(classification_report(yemail, yemail_pred))
