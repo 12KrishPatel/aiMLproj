@@ -45,9 +45,23 @@ if __name__ == "__main__":
         print("--- Spambase DataFrame Loaded Successfully! ---")
         print("\n--- DataFrame Head ---")
         print(spambase_df.head())
-        print("\n--- DataFrame Info ---")
-        print(spambase_df.info())
-        print("\n--- DataFrame Shape ---")
-        print(f"Rows: {spambase_df.shape[0]}, Columns: {spambase_df.shape[1]}")
+        # print("\n--- DataFrame Info ---")
+        # print(spambase_df.info())
+        # print("\n--- DataFrame Shape ---")
+        # print(f"Rows: {spambase_df.shape[0]}, Columns: {spambase_df.shape[1]}")
     else:
         print("\nFailed to load Spambase DataFrame.")
+
+    # Seperating features into X and Y
+    # Target COL
+    target_col = "capital_run_length_total"
+    drop_col = '| UCI Machine Learning Repository'
+
+    X = spambase_df.drop([drop_col, target_col], axis=1)
+    Y = spambase_df[target_col]
+    print("X head")
+    print(X.shape)
+    print("Y head")
+    print(Y.shape)
+
+    
