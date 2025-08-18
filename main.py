@@ -1,5 +1,7 @@
 import pandas as pd
 import io
+from sklearn.model_selection import train_test_split # type: ignore
+from sklearn.preprocessing import StandardScaler # type: ignore
 
 def load_spambase(data_path, names_path):
     # Loads the spambase dataset into a Pandas DB
@@ -59,9 +61,30 @@ if __name__ == "__main__":
 
     X = spambase_df.drop([drop_col, target_col], axis=1)
     Y = spambase_df[target_col]
-    print("X head")
-    print(X.shape)
-    print("Y head")
-    print(Y.shape)
+    # print("X head")
+    # print(X.shape)
+    # print("Y head")
+    # print(Y.shape)
 
+    # Split data into training and testing
+    # Stratify = y to maintain spam/ham in both sets
+    x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.20, random_state=42, stratify=Y)
+
+    # print("\nDistribution of target in y_train:")
+    # print(y_train.value_counts(normalize=True))
+    # print("\nDistribution of target in y_test:")
+    # print(y_test.value_counts(normalize=True))
     
+    # Scale features AFTER splitting to prevent data leaks
+    scaler = StandardScaler()
+
+    xtrain_scaled = scaler.fit_transform(x_train)
+    xtest_scaled = scaler.transform(x_test)
+    # Convert scaled numpy arrays back to pandas DB
+    xtrain_scaled_df = pd.DataFrame(xtrain_scaled, columns=x_train.columns)
+    xtest_scaled_df = pd.DataFrame(xtest_scaled, columns=x_test.columns)
+
+    print("\nFirst 5 rows of X_train_scaled_df (scaled training features):")
+    print(xtrain_scaled_df.head())
+    print("\nDescriptive Statistics of X_train_scaled_df:")
+    print(xtrain_scaled_df.describe()) 
