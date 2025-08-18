@@ -2,6 +2,7 @@ import pandas as pd
 import io
 from sklearn.model_selection import train_test_split # type: ignore
 from sklearn.preprocessing import StandardScaler # type: ignore
+from sklearn.linear_model import LogisticRegression # type: ignore
 
 def load_spambase(data_path, names_path):
     # Loads the spambase dataset into a Pandas DB
@@ -47,10 +48,6 @@ if __name__ == "__main__":
         print("--- Spambase DataFrame Loaded Successfully! ---")
         print("\n--- DataFrame Head ---")
         print(spambase_df.head())
-        # print("\n--- DataFrame Info ---")
-        # print(spambase_df.info())
-        # print("\n--- DataFrame Shape ---")
-        # print(f"Rows: {spambase_df.shape[0]}, Columns: {spambase_df.shape[1]}")
     else:
         print("\nFailed to load Spambase DataFrame.")
 
@@ -61,20 +58,11 @@ if __name__ == "__main__":
 
     X = spambase_df.drop([drop_col, target_col], axis=1)
     Y = spambase_df[target_col]
-    # print("X head")
-    # print(X.shape)
-    # print("Y head")
-    # print(Y.shape)
-
+    
     # Split data into training and testing
     # Stratify = y to maintain spam/ham in both sets
     x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.20, random_state=42, stratify=Y)
 
-    # print("\nDistribution of target in y_train:")
-    # print(y_train.value_counts(normalize=True))
-    # print("\nDistribution of target in y_test:")
-    # print(y_test.value_counts(normalize=True))
-    
     # Scale features AFTER splitting to prevent data leaks
     scaler = StandardScaler()
 
@@ -84,7 +72,19 @@ if __name__ == "__main__":
     xtrain_scaled_df = pd.DataFrame(xtrain_scaled, columns=x_train.columns)
     xtest_scaled_df = pd.DataFrame(xtest_scaled, columns=x_test.columns)
 
-    print("\nFirst 5 rows of X_train_scaled_df (scaled training features):")
-    print(xtrain_scaled_df.head())
-    print("\nDescriptive Statistics of X_train_scaled_df:")
-    print(xtrain_scaled_df.describe()) 
+    # Train the model
+    model = LogisticRegression(random_state=42, solver='liblinear')
+    print(f"\nTraining {type(model).__name__} model...")
+
+    # Train using scaled data
+    model.fit(xtrain_scaled_df, y_train)
+
+    print(f"{type(model).__name__} model training complete!")
+
+
+    y_pred = model.predict(xtest_scaled_df)
+
+    print("\nFirst 10 actual labels (y_test):")
+    print(y_test.head(10).tolist()) # Convert to list for cleaner printing
+    print("\nFirst 10 predicted labels (y_pred):")
+    print(y_pred[:10].tolist())
