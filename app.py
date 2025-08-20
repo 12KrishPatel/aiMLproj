@@ -16,7 +16,7 @@ def load_resources():
 tfidf_vec, model_text = load_resources()
 
 st.title("⚠️Spam Detector⚠️")
-st.write("⬇Enter the message of your email below to check if its spam or not!⬇")
+st.write("⬇️Enter the message of your email below to check if its spam.⬇️")
 
 # Text input area
 user_inp = st.text_area("Enter the contents of your email here: ", height=200, placeholder="Type or paste an email here...")
