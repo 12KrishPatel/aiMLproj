@@ -1,0 +1,7 @@
+[theme]
+base="dark"             # Choose "light" or "dark". This sets a base theme.
+primaryColor="#F63366"  # Example: A custom color for interactive elements
+backgroundColor="#0E1117" # Example: Dark background color (matches Streamlit's dark theme default)
+secondaryBackgroundColor="#262730" # Example: Slightly lighter dark for secondary elements (like sidebar or code blocks)
+textColor="#FAFAFA"     # Example: Light text color
+font="sans serif"       # Choose "sans serif", "serif", or "monospace"
