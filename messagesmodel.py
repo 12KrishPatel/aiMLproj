@@ -119,3 +119,26 @@ print("Trained model saved as spam_detector.pkl")
 # Save th TF-IDF vec
 joblib.dump(tfidf_vec, 'tfidf_vec.pkl')
 print("Tfidf saved as tfidf_vec.pkl")
+
+# Spam detection function
+def spam_predictor(input):
+    try: 
+        # Load the two components
+        loaded_vec = joblib.load('tfidf_vec.pkl')
+        loaded_model = joblib.load('spam_detector.pkl')
+
+        # Transform input text with vectorizer
+        text_series = pd.Series([input])
+        text_vec = loaded_vec.transform(text_series)
+
+        # Make prediction
+        prediction = loaded_model.predict(text_vec)[0]
+
+        if prediction == 1:
+            return "SPAM"
+        else:
+            return "NOT SPAM"
+    except FileNotFoundError:
+        return "Model or vectorizer files not found"
+    except Exception as e:
+        return "Error occured during prediction"
