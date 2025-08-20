@@ -1,0 +1,11 @@
+streamlit
+joblib
+pandas
+io
+sklearn.model_selection, train_test_split
+sklearn.preprocessing, StandardScaler 
+sklearn.linear_model, LogisticRegression 
+sklearn.feature_extraction.text, TfidfVectorizer
+sklearn.model_selection, train_test_split
+sklearn.linear_model, LogisticRegression
+sklearn.metrics, accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
