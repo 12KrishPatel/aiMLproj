@@ -4,8 +4,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
+import joblib
 
-# Esnsure messages DF loads
+# Ensure messages DF loads
 try: 
     messages_df = pd.read_csv('messages.csv')
 except FileNotFoundError:
@@ -109,3 +110,12 @@ print(confusion_matrix(yemail, yemail_pred))
 
 print("\nClassification Report ('emails.csv'):")
 print(classification_report(yemail, yemail_pred))
+
+
+# Saving the trained model
+joblib.dump(model_text, 'spam_detector.pkl')
+print("Trained model saved as spam_detector.pkl")
+
+# Save th TF-IDF vec
+joblib.dump(tfidf_vec, 'tfidf_vec.pkl')
+print("Tfidf saved as tfidf_vec.pkl")
