@@ -2,7 +2,7 @@ import pandas as pd
 import io
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
 import joblib
 
@@ -32,6 +32,9 @@ df_spam = combined_df[combined_df['label'] == 1]
 df_not_spam = combined_df[combined_df['label'] == 0]
 min_size = min(len(df_spam), len(df_not_spam))
 max_size = max(len(df_spam), len(df_not_spam))
+urgent_words = ['urgent', 'immediately', 'now', 'action', 'disabled', 'limited', 'suspended', 'expire', 'warning', 'important']
+threat_words = ['permanently', 'terminated', 'disabled', 'sorry', 'inform', 'no longer have access']
+link_words = ['click', 'link', 'verify', 'confirm', 'login', 'secure', 'account details']
 
 if(len(df_spam) < len(df_not_spam)):
     from sklearn.utils import resample
@@ -42,6 +45,12 @@ else:
     df_not_spam_resam = resample(df_not_spam, replace=True, n_samples=min_size, random_state=42)
     balanced_df = pd.concat([df_spam, df_not_spam_resam])
 
+balanced_df['length'] = balanced_df['text'].apply(len)
+
+balanced_df['urgent_count'] = balanced_df['text'].apply(lambda x: sum(1 for word in x.lower()))
+balanced_df['threat_count'] = balanced_df['text'].apply(lambda x: sum(1 for word in x.lower()))
+balanced_df['link_count'] = balanced_df['text'].apply(lambda x: sum(1 for word in x.lower()))
+
 print("First 5 rows of 'text_content' and 'label':")
 print(balanced_df[['text', 'label']].head())
 
@@ -51,6 +60,7 @@ print(balanced_df['label'].value_counts(normalize=True))
 
 # Seperate X (features) and Y (target)
 xtxt = balanced_df['text']
+xtra_features = balanced_df[['length', 'urgent_count', 'threat_count', 'link_count']]
 ytxt = balanced_df['label']
 
 # Initialize TF-IDF Vectorizer
@@ -60,53 +70,20 @@ print("\nFitting TF-IDF Vectorizer and transforming text data...")
 # Fit and transform
 x_vectorized = tfidf_vec.fit_transform(xtxt)
 
+import scipy.sparse
+x_combined = scipy.sparse.hstack((x_vectorized, xtra_features.values))
+
 # Split into training and testing sets
-xtrain_text, xtest_text, ytrain_text, ytest_text = train_test_split(
-    x_vectorized, ytxt, test_size=0.20, random_state=42, stratify=ytxt
+xtrain, xtest, ytrain, ytest = train_test_split(
+    x_combined, ytxt, test_size=0.20, random_state=42, stratify=ytxt
 )
 
-# Train the model with Logistic Regression
-model_text = LogisticRegression(random_state=42, solver='liblinear', max_iter=1000)
-print(f"\nTraining {type(model_text).__name__} model on text features...")
+model = RandomForestClassifier(n_estimators=100, random_state=42, class_weight='balanced')
+print("Training RandomForestClassifier model...")
 
-model_text.fit(xtrain_text, ytrain_text)
-print(f"{type(model_text).__name__} model training complete!")
+model.fit(xtrain, ytrain)
+print("\n Random Forest Classifier model training complete")
 
-y_pred_text = model_text.predict(xtest_text)
-
-print("\n--- Predictions on New Model ---")
-print("First 10 actual labels (y_test_text):")
-print(ytest_text.head(10).tolist())
-print("\nFirst 10 predicted labels (y_pred_text):")
-print(y_pred_text[:10].tolist())
-
-# Saving the trained model
-joblib.dump(model_text, 'spam_detector.pkl')
-print("Trained model saved as spam_detector.pkl")
-
-# Save th TF-IDF vec
+joblib.dump(model, 'spam_detector.pkl')
 joblib.dump(tfidf_vec, 'tfidf_vec.pkl')
-print("Tfidf saved as tfidf_vec.pkl")
-
-# Spam detection function
-def spam_predictor(input):
-    try: 
-        # Load the two components
-        loaded_vec = joblib.load('tfidf_vec.pkl')
-        loaded_model = joblib.load('spam_detector.pkl')
-
-        # Transform input text with vectorizer
-        text_series = pd.Series([input])
-        text_vec = loaded_vec.transform(text_series)
-
-        # Make prediction
-        prediction = loaded_model.predict(text_vec)[0]
-
-        if prediction == 1:
-            return "SPAM"
-        else:
-            return "NOT SPAM"
-    except FileNotFoundError:
-        return "Model or vectorizer files not found"
-    except Exception as e:
-        return "Error occured during prediction"
+print("New pkl files saved.")
