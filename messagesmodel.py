@@ -27,16 +27,26 @@ phishing_df.rename(columns={'text_combined': 'text', 'label': 'label'}, inplace=
 # Combine the dataframes
 combined_df = pd.concat([messages_df, phishing_df], ignore_index=True)
 
+# Seperating the datasets
+df_spam = combined_df[combined_df['label'] == 1]
+df_not_spam = combined_df[combined_df['label'] == 0]
+min_size = min(len(df_spam), len(df_not_spam))
+
+df_spam_bal = df_spam.sample(n=min_size, random_state=42)
+df_not_spam_bal = df_not_spam.sample(n=min_size, random_state=42)
+
+balanced_df = pd.concat([df_spam, df_not_spam_bal], ignore_index=True)
+
 print("First 5 rows of 'text_content' and 'label':")
-print(combined_df[['text', 'label']].head())
+print(balanced_df[['text', 'label']].head())
 
 print("\nDistribution of 'label' in new dataset:")
-print(combined_df['label'].value_counts())
-print(combined_df['label'].value_counts(normalize=True))
+print(balanced_df['label'].value_counts())
+print(balanced_df['label'].value_counts(normalize=True))
 
 # Seperate X (features) and Y (target)
-xtxt = combined_df['text']
-ytxt = combined_df['label']
+xtxt = balanced_df['text']
+ytxt = balanced_df['label']
 
 # Initialize TF-IDF Vectorizer
 tfidf_vec = TfidfVectorizer(max_features=5000, stop_words='english', ngram_range=(1, 2))
