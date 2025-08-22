@@ -27,14 +27,19 @@ phishing_df.rename(columns={'text_combined': 'text', 'label': 'label'}, inplace=
 # Combine the dataframes
 combined_df = pd.concat([messages_df, phishing_df], ignore_index=True)
 
-# Seperating the datasets
-df_spam = combined_df[combined_df['label'] == 1]
-df_not_spam = combined_df[combined_df['label'] == 0]
-min_size = min(len(df_spam), len(df_not_spam))
-max_size = max(len(df_spam), len(df_not_spam))
+combined_df['length'] = combined_df['text'].apply(len)
 urgent_words = ['urgent', 'immediately', 'now', 'action', 'disabled', 'limited', 'suspended', 'expire', 'warning', 'important']
 threat_words = ['permanently', 'terminated', 'disabled', 'sorry', 'inform', 'no longer have access']
 link_words = ['click', 'link', 'verify', 'confirm', 'login', 'secure', 'account details']
+
+combined_df['urgent_count'] = combined_df['text'].apply(lambda x: sum(1 for word in urgent_words if word in x.lower()))
+combined_df['threat_count'] = combined_df['text'].apply(lambda x: sum(1 for word in threat_words if word in  x.lower()))
+combined_df['link_count'] = combined_df['text'].apply(lambda x: sum(1 for word in link_words if word in x.lower()))
+
+# Seperating the datasets
+df_spam = combined_df[combined_df['label'] == 1]
+df_not_spam = combined_df[combined_df['label'] == 0]
+max_size = max(len(df_spam), len(df_not_spam))
 
 if(len(df_spam) < len(df_not_spam)):
     from sklearn.utils import resample
@@ -42,21 +47,11 @@ if(len(df_spam) < len(df_not_spam)):
     balanced_df = pd.concat([df_not_spam, df_spam_resam])
 else:
     from sklearn.utils import resample
-    df_not_spam_resam = resample(df_not_spam, replace=True, n_samples=min_size, random_state=42)
+    df_not_spam_resam = resample(df_not_spam, replace=True, n_samples=max_size, random_state=42)
     balanced_df = pd.concat([df_spam, df_not_spam_resam])
 
-balanced_df['length'] = balanced_df['text'].apply(len)
-
-balanced_df['urgent_count'] = balanced_df['text'].apply(lambda x: sum(1 for word in x.lower()))
-balanced_df['threat_count'] = balanced_df['text'].apply(lambda x: sum(1 for word in x.lower()))
-balanced_df['link_count'] = balanced_df['text'].apply(lambda x: sum(1 for word in x.lower()))
-
-print("First 5 rows of 'text_content' and 'label':")
-print(balanced_df[['text', 'label']].head())
-
-print("\nDistribution of 'label' in new dataset:")
+print("Balanced Dataset Dist:")
 print(balanced_df['label'].value_counts())
-print(balanced_df['label'].value_counts(normalize=True))
 
 # Seperate X (features) and Y (target)
 xtxt = balanced_df['text']
@@ -82,7 +77,7 @@ model = RandomForestClassifier(n_estimators=100, random_state=42, class_weight='
 print("Training RandomForestClassifier model...")
 
 model.fit(xtrain, ytrain)
-print("\n Random Forest Classifier model training complete")
+print("\nRandom Forest Classifier model training complete")
 
 joblib.dump(model, 'spam_detector.pkl')
 joblib.dump(tfidf_vec, 'tfidf_vec.pkl')
