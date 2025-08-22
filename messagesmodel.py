@@ -31,11 +31,16 @@ combined_df = pd.concat([messages_df, phishing_df], ignore_index=True)
 df_spam = combined_df[combined_df['label'] == 1]
 df_not_spam = combined_df[combined_df['label'] == 0]
 min_size = min(len(df_spam), len(df_not_spam))
+max_size = max(len(df_spam), len(df_not_spam))
 
-df_spam_bal = df_spam.sample(n=min_size, random_state=42)
-df_not_spam_bal = df_not_spam.sample(n=min_size, random_state=42)
-
-balanced_df = pd.concat([df_spam, df_not_spam_bal], ignore_index=True)
+if(len(df_spam) < len(df_not_spam)):
+    from sklearn.utils import resample
+    df_spam_resam = resample(df_spam, replace=True, n_samples = max_size, random_state=42)
+    balanced_df = pd.concat([df_not_spam, df_spam_resam])
+else:
+    from sklearn.utils import resample
+    df_not_spam_resam = resample(df_not_spam, replace=True, n_samples=min_size, random_state=42)
+    balanced_df = pd.concat([df_spam, df_not_spam_resam])
 
 print("First 5 rows of 'text_content' and 'label':")
 print(balanced_df[['text', 'label']].head())
