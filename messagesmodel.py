@@ -32,7 +32,7 @@ xtxt = messages_df['text']
 ytxt = messages_df['label']
 
 # Initialize TF-IDF Vectorizer
-tfidf_vec = TfidfVectorizer(max_features=5000, stop_words='english')
+tfidf_vec = TfidfVectorizer(max_features=5000, stop_words='english', ngram_range=(1, 2))
 print("\nFitting TF-IDF Vectorizer and transforming text data...")
 
 # Fit and transform
