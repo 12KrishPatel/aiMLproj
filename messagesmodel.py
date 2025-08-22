@@ -9,6 +9,7 @@ import joblib
 # Ensure messages DF loads
 try: 
     messages_df = pd.read_csv('messages.csv')
+    phishing_df = pd.read_csv('phishing_email.csv')
 except FileNotFoundError:
     print("Error: messages.csv not found")
     exit()
@@ -20,16 +21,22 @@ messages_df['message'] = messages_df['message'].fillna('')
 # Combine messages and subjects into one column
 messages_df['text'] = messages_df['subject'] + "" + messages_df['message']
 
+# Renaming second datesets columns
+phishing_df.rename(columns={'text_combined': 'text', 'label': 'label'}, inplace=True)
+
+# Combine the dataframes
+combined_df = pd.concat([messages_df, phishing_df], ignore_index=True)
+
 print("First 5 rows of 'text_content' and 'label':")
-print(messages_df[['text', 'label']].head())
+print(combined_df[['text', 'label']].head())
 
 print("\nDistribution of 'label' in new dataset:")
-print(messages_df['label'].value_counts())
-print(messages_df['label'].value_counts(normalize=True))
+print(combined_df['label'].value_counts())
+print(combined_df['label'].value_counts(normalize=True))
 
 # Seperate X (features) and Y (target)
-xtxt = messages_df['text']
-ytxt = messages_df['label']
+xtxt = combined_df['text']
+ytxt = combined_df['label']
 
 # Initialize TF-IDF Vectorizer
 tfidf_vec = TfidfVectorizer(max_features=5000, stop_words='english', ngram_range=(1, 2))
