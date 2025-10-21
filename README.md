@@ -4,6 +4,7 @@ This project is a spam and phishing email detector that uses machine learning to
 It has a simple Streamlit web app where you can paste an email message and see the result instantly.
 
 💻 Link to published website:
+
 spamdetectorkp.streamlit.app
 
 🧠 What It Does
@@ -30,11 +31,17 @@ requirements.txt      → Needed Python packages
 Clone the project
 
 -git clone https://github.com/yourusername/spam-email-detector.git
+
 -cd spam-email-detector
+
 -Install the requirements
+
 -pip install -r requirements.txt
+
 -Start the app
+
 -streamlit run app.py
+
 -Go to the link Streamlit gives you (usually http://localhost:8501), type or paste an email, and hit Predict.
 
 🧩 If You Want to Retrain the Model
