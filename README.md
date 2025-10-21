@@ -19,11 +19,17 @@ You can retrain the model with your own data if you want
 
 🗂️ Files in This Project
 app.py                → Streamlit web app
+
 messagesmodel.py      → Trains the spam detection model
+
 messages.csv          → Regular email dataset
+
 phishing_email.csv    → Spam/phishing dataset
+
 spam_detector.pkl     → Saved model
+
 tfidf_vec.pkl         → Saved text vectorizer
+
 requirements.txt      → Needed Python packages
 
 ⚙️ How to Run It
