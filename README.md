@@ -34,15 +34,15 @@ Clone the project
 
 -cd spam-email-detector
 
--Install the requirements
+Install the requirements
 
 -pip install -r requirements.txt
 
--Start the app
+Start the app
 
 -streamlit run app.py
 
--Go to the link Streamlit gives you (usually http://localhost:8501), type or paste an email, and hit Predict.
+Go to the link Streamlit gives you (usually http://localhost:8501), type or paste an email, and hit Predict.
 
 🧩 If You Want to Retrain the Model
 
