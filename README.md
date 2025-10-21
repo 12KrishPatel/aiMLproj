@@ -18,6 +18,7 @@ Shows how confident the model is
 You can retrain the model with your own data if you want
 
 🗂️ Files in This Project
+
 app.py                → Streamlit web app
 
 messagesmodel.py      → Trains the spam detection model
@@ -59,10 +60,14 @@ python messagesmodel.py
 That will rebuild the spam detector using the CSV files.
 
 🧾 Example
+
 Message	Result	Confidence
+
 "Your account has been suspended, click here to verify."	🛑 SPAM	97%
+
 "Let’s meet tomorrow for the project."	✅ NOT SPAM	95%
 
 👨‍💻 Made by
+
 Krish Patel
 (Personal project on spam detection using Python and Streamlit)
