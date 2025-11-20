@@ -1,6 +1,12 @@
 import streamlit as st
 import joblib
 import pandas as pd
+import scipy.sparse
+
+# Define keyword lists (same as in training)
+urgent_words = ['urgent', 'immediately', 'now', 'action', 'disabled', 'limited', 'suspended', 'expire', 'warning', 'important']
+threat_words = ['permanently', 'terminated', 'disabled', 'sorry', 'inform', 'no longer have access']
+link_words = ['click', 'link', 'verify', 'confirm', 'login', 'secure', 'account details']
 
 @st.cache_resource
 
@@ -15,6 +21,14 @@ def load_resources():
         st.stop()
 tfidf_vec, model_text = load_resources()
 
+def extract_features(text):
+    """Extract handcrafted features from text (same as training)"""
+    length = len(text)
+    urgent_count = sum(1 for word in urgent_words if word in text.lower())
+    threat_count = sum(1 for word in threat_words if word in text.lower())
+    link_count = sum(1 for word in link_words if word in text.lower())
+    return [length, urgent_count, threat_count, link_count]
+
 st.title("⚠️Spam Detector⚠️")
 st.write("⬇️Enter the message of your email below to check if its spam.⬇️")
 
@@ -23,13 +37,20 @@ user_inp = st.text_area("Enter the contents of your email here: ", height=200, p
 
 if st.button("Predict"):
     if user_inp:
-        # Prep input
+        # Prep input - TF-IDF features
         text_series = pd.Series([user_inp])
         text_vec = tfidf_vec.transform(text_series)
 
+        # Extract handcrafted features
+        extra_features = extract_features(user_inp)
+        extra_features_array = pd.DataFrame([extra_features], columns=['length', 'urgent_count', 'threat_count', 'link_count'])
+
+        # Combine TF-IDF features with handcrafted features (same as training)
+        combined_features = scipy.sparse.hstack((text_vec, extra_features_array.values))
+
         # Predict
-        prediction = model_text.predict(text_vec)[0]
-        prob = model_text.predict_proba(text_vec)[0]
+        prediction = model_text.predict(combined_features)[0]
+        prob = model_text.predict_proba(combined_features)[0]
         spam_confidence = prob[1]*100
 
         st.subheader("Prediction: ")
